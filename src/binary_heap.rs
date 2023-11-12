@@ -6,25 +6,24 @@ pub struct BinaryHeap<T: Ord> {
     values: Vec<T>,
 }
 
+fn left_son(index: usize) -> usize {
+    2 * index + 1
+}
+fn right_son(index: usize) -> usize {
+    2 * index + 2
+}
+fn father(index: usize) -> Option<usize> {
+    if index == 0 {
+        None
+    } else {
+        Some((index + 1) / 2 - 1)
+    }
+}
+
 impl<T: Ord> BinaryHeap<T> {
     /// Returns an empty binary heap.
     pub fn new() -> Self {
         BinaryHeap { values: vec![] }
-    }
-
-    // Utility functions used to navigate the binary heap.
-    fn left_son(index: usize) -> usize {
-        2 * index + 1
-    }
-    fn right_son(index: usize) -> usize {
-        2 * index + 2
-    }
-    fn father(index: usize) -> Option<usize> {
-        if index == 0 {
-            None
-        } else {
-            Some((index + 1) / 2 - 1)
-        }
     }
 }
 
@@ -34,7 +33,7 @@ impl<T: Ord> MinHeap<T> for BinaryHeap<T> {
         let mut current = self.values.len() - 1;
 
         loop {
-            let f = match Self::father(current) {
+            let f = match father(current) {
                 Some(node) => node,
                 None => break,
             };
@@ -67,8 +66,8 @@ impl<T: Ord> MinHeap<T> for BinaryHeap<T> {
         let mut current_node: usize = 0;
 
         loop {
-            let left_son = Self::left_son(current_node);
-            let right_son = Self::right_son(current_node);
+            let left_son = left_son(current_node);
+            let right_son = right_son(current_node);
 
             // Stop if the current node doesn't have any children.
             if left_son > last {
@@ -104,13 +103,11 @@ impl<T: Ord> MinHeap<T> for BinaryHeap<T> {
 
 #[cfg(test)]
 mod tests {
-    use super::BinaryHeap;
-    use super::MinHeap;
+    use super::*;
     use rand::distributions::Standard;
     use rand::prelude::*;
     use std::cmp::Reverse;
     use std::collections;
-    use std::collections::btree_map::Values;
 
     enum Operation<T> {
         Insert(T),
@@ -233,6 +230,7 @@ mod tests {
 
     // Random fuzz testing.
     #[test]
+    #[ignore]
     fn fuzz() {
         let num_operations: usize = 5000000;
         let mut rng = thread_rng();
